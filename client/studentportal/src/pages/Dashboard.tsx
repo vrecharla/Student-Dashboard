@@ -1,7 +1,10 @@
+// src/pages/Dashboard.tsx
 import { useEffect, useState } from "react";
 import type { DashboardDTO } from "../types/dashboard";
 import { getDashboard } from "../api/client";
 import Card from "../components/Card";
+import KPI from "../components/KPI";
+import MiniCalendar from "../components/MiniCalendar";
 import Progress from "../components/Progress";
 import { Badge } from "../components/Badge";
 
@@ -12,117 +15,144 @@ function tone(status: "ok"|"due_soon"|"overdue") {
 
 export default function Dashboard() {
   const [data, setData] = useState<DashboardDTO | null>(null);
-
   useEffect(() => { getDashboard("S001", "Spring 2024").then(setData); }, []);
   if (!data) return <div className="p-6">Loading…</div>;
 
   const { metrics, student } = data;
+  const todayStr = new Date().toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-6xl mx-auto p-4 space-y-6">
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-6xl mx-auto p-6 space-y-6">
 
-        {/* student banner */}
-        <Card>
-          <div className="flex flex-wrap items-center justify-between gap-4">
+        {/* TOP PILL (like Figma title) */}
+        <div className="grid place-items-center">
+          <div className="px-6 py-2 rounded-full bg-purple-700 text-white text-sm font-semibold shadow-[0_12px_28px_-14px_rgba(107,33,168,0.6)]">
+            STUDENT DASHBOARD PORTAL
+          </div>
+        </div>
+
+        {/* PURPLE HERO */}
+        <div className="rounded-2xl bg-purple-700 text-white p-6 shadow-[0_16px_40px_-18px_rgba(107,33,168,.55)]">
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs text-slate-500">Student</p>
-              <p className="text-lg font-semibold">{student.name}</p>
-              <p className="text-xs text-slate-500">{student.program} • {student.level}</p>
+              <div className="text-xs opacity-80">{todayStr}</div>
+              <h2 className="mt-2 text-2xl font-semibold">Welcome back, {student.name.split(" ")[0]}!</h2>
+              <p className="text-sm opacity-90">Always stay updated in your student portal</p>
             </div>
-            <div className="text-xs text-slate-600">
-              <p>Email: <span className="font-medium text-slate-800">{student.mail_id}</span></p>
-              <p>Admit Term: <span className="font-medium text-slate-800">{student.admit_term}</span></p>
+            <div className="flex items-center gap-3">
+              <div className="text-right text-xs opacity-80">
+                {student.level}<br/>{student.program}
+              </div>
+              <div className="w-10 h-10 rounded-full bg-purple-300/30 grid place-items-center font-semibold">
+                {student.name.split(" ").map(s=>s[0]).slice(0,2).join("")}
+              </div>
             </div>
           </div>
-        </Card>
+        </div>
 
-        {/* key metrics */}
-        <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card title="Overall Progress" right={<span className="text-sm font-bold">{pct(metrics.overall_progress_pct)}</span>}>
-            <Progress value={metrics.overall_progress_pct} />
-          </Card>
-          <Card title="GPA">
-            <p className="text-3xl font-bold">{metrics.gpa.toFixed(2)}</p>
-          </Card>
-          <Card title="Attendance" right={<span className="text-sm font-bold">{pct(metrics.attendance_pct)}</span>}>
-            <Progress value={metrics.attendance_pct} />
-          </Card>
-          <Card title="Unread Alerts">
-            <p className="text-3xl font-bold">{metrics.alerts_unread}</p>
-          </Card>
+        {/* KPI STRIP */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <KPI label="GPA" value={metrics.gpa.toFixed(2)} />
+          <KPI label="Attendance" value={pct(metrics.attendance_pct)} />
+          <KPI label="Balance" value={`$ ${Math.max(0, data.financeSummary.balance_due).toFixed(0)}`} />
         </section>
 
-        {/* courses + deadlines */}
+        {/* MAIN GRID: left (courses+attendance) / middle (calendar) / right (deadlines+submissions) */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card title="Current Courses">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-slate-500">
-                  <th className="py-2">Code</th><th>Title</th><th>Credits</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.courses.map(c => (
-                  <tr key={c.c_id} className="border-t">
-                    <td className="py-2 font-medium">{c.c_code}</td>
-                    <td>{c.c_title}</td>
-                    <td>{c.credits}</td>
+          {/* LEFT COLUMN */}
+          <div className="space-y-6">
+            <Card title="Enrolled Courses">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-slate-500">
+                    <th className="py-2">Course Name</th>
+                    <th>Code</th>
+                    <th>Credits</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
+                </thead>
+                <tbody>
+                  {data.courses.map((c, idx) => (
+                    <tr key={c.c_id} className={["border-t", idx % 2 === 1 ? "bg-slate-50/40" : ""].join(" ")}>
+                      <td className="py-2">{c.c_title}</td>
+                      <td>{c.c_code}</td>
+                      <td>{c.credits}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Card>
 
-          <div className="lg:col-span-2 space-y-6">
+            <Card title="Attendance">
+              <div className="space-y-4">
+                {data.attendance.slice(0, 2).map((a, i) => {
+                  const course = data.courses.find(c => c.c_id === a.c_id);
+                  const v = Math.min(1, Math.max(0, a.attendance_pct / 100));
+                  return (
+                    <div key={i}>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-semibold">{course?.c_title ?? a.c_id}</p>
+                        <p className="text-slate-700">{a.attendance_pct}%</p>
+                      </div>
+                      <Progress value={v} />
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          </div>
+
+          {/* MIDDLE COLUMN */}
+          <div className="space-y-6">
+            <MiniCalendar />
+            <Card title={new Date().toLocaleString(undefined,{ day:"numeric", month:"short"})}>
+              <p className="text-sm text-slate-600">No deadlines on this day</p>
+            </Card>
+          </div>
+
+          {/* RIGHT COLUMN */}
+          <div className="space-y-6">
             <Card title="Upcoming Deadlines">
-              <ul className="space-y-3 text-sm">
+              <ul className="space-y-4 text-sm">
                 {data.deadlines.map((d, i) => (
                   <li key={i} className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">{d.course_code} — {d.label}</p>
-                      <p className="text-xs text-slate-500 capitalize">{d.status.replace("_"," ")}</p>
+                      <p className="text-xs text-slate-500">
+                        {new Date(d.due_date).toLocaleDateString()}
+                      </p>
                     </div>
-                    <Badge tone={tone(d.status)}>{d.due_date}</Badge>
+                    <Badge tone={tone(d.status)}>{d.status.replace("_"," ")}</Badge>
                   </li>
                 ))}
               </ul>
             </Card>
 
-            <Card title="Personalized Recommendations">
-              <ul className="list-disc pl-5 space-y-1 text-sm">
-                {data.recommendations.map((r, i) => <li key={i}>{r}</li>)}
-              </ul>
+            <Card title="Recent Assignment Submissions">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-slate-500">
+                    <th className="py-2">Assignment Name</th>
+                    <th>Course</th>
+                    <th>Grade</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.grades.slice(0, 4).map((g, idx) => {
+                    const a = data.assignments.find(x => x.a_id === g.a_id);
+                    const c = a ? data.courses.find(x => x.c_id === a.c_id) : undefined;
+                    return (
+                      <tr key={g.g_id} className={["border-t", idx % 2 === 1 ? "bg-slate-50/40" : ""].join(" ")}>
+                        <td className="py-2">{a?.a_name ?? g.a_id}</td>
+                        <td>{c?.c_code ?? "-"}</td>
+                        <td>{g.score}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </Card>
           </div>
-        </section>
-
-        {/* assignments snapshot */}
-        <section className="grid grid-cols-1 gap-6">
-          <Card title="Recent Assignment Scores" subtitle="Latest 6 submissions">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-slate-500">
-                  <th className="py-2">Assignment</th><th>Course</th><th>Score</th><th>Status</th><th>Submitted</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.grades.slice(0,6).map(g => {
-                  const a = data.assignments.find(x => x.a_id === g.a_id);
-                  const c = a ? data.courses.find(x => x.c_id === a.c_id) : undefined;
-                  return (
-                    <tr key={g.g_id} className="border-t">
-                      <td className="py-2">{a?.a_name ?? g.a_id}</td>
-                      <td>{c?.c_code ?? "-"}</td>
-                      <td>{g.score}</td>
-                      <td>{g.status}</td>
-                      <td>{g.submitted_date}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </Card>
         </section>
       </div>
     </div>

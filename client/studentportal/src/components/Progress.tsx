@@ -1,7 +1,10 @@
 export default function Progress({ value }: { value: number }) {
   return (
-    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-      <div className="h-full bg-indigo-600" style={{ width: `${Math.round(value * 100)}%` }} />
+    <div className="w-full h-3 rounded-full bg-slate-200 overflow-hidden">
+      <div
+        className="h-full bg-purple-600"
+        style={{ width: `${Math.max(0, Math.min(1, value)) * 100}%` }}
+      />
     </div>
   );
 }

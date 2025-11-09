@@ -1,33 +1,47 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import Finance from "./pages/Finance";
-import Attendance from "./pages/Attendance";
-import Assignments from "./pages/Assignments";
-import Notifications from "./pages/Notifications";
-import Profile from "./pages/Profile";
-
+// src/App.tsx
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
+import Dashboard from "./pages/Dashboard";
+import Academic from "./pages/Academic";
+import Attendance from "./pages/Attendance";
+import Finance from "./pages/Finance";
+import Profile from "./pages/Profile";
+import Login from "./pages/Login";
+
+function ShellLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="h-full flex">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Topbar alerts={2} />
+        <main className="flex-1">{children}</main>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen flex">
-        <Sidebar />
-        <div className="flex-1 flex flex-col">
-          <Topbar alerts={2} />
-          <main className="flex-1">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/finance" element={<Finance />} />
-              <Route path="/attendance" element={<Attendance />} />
-              <Route path="/assignments" element={<Assignments />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/profile" element={<Profile />} />
-            </Routes>
-          </main>
-        </div>
-      </div>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="*"
+          element={
+            <ShellLayout>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/academic" element={<Academic />} />
+                <Route path="/attendance" element={<Attendance />} />
+                <Route path="/financial" element={<Finance />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </ShellLayout>
+          }
+        />
+      </Routes>
     </BrowserRouter>
   );
 }
