@@ -4,7 +4,7 @@ import UserProfile from "./UserProfile";
 export default function Topbar() {
   return (
     <header
-      className="flex items-center justify-between px-10 py-4"
+      className="flex items-center justify-between px-10 py-4 pr-15"
     >
       {/* Left: Title */}
       <h1
