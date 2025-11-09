@@ -11,15 +11,24 @@ import Login from "./pages/Login";
 
 function ShellLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="h-full flex">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Topbar/>
-        <main className="flex-1">{children}</main>
+    <div
+      className="h-screen flex overflow-hidden"
+      style={{ "--sidebar-width": "16rem" } as React.CSSProperties}
+    >
+      <div className="fixed h-full" style={{ width: "var(--sidebar-width)" }}>
+        <Sidebar />
+      </div>
+      <div
+        className="flex-1 flex flex-col overflow-y-auto"
+        style={{ marginLeft: "var(--sidebar-width)" }}
+      >
+        <Topbar />
+        <main className="flex-1 p-4">{children}</main>
       </div>
     </div>
   );
 }
+
 
 export default function App() {
   return (

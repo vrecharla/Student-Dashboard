@@ -40,16 +40,16 @@ export default function Dashboard() {
           className="rounded-2xl p-6 text-white flex justify-between items-center shadow-lg"
           style={{ backgroundColor: "var(--color-primary)", boxShadow: "var(--shadow-soft)", }}
         >
-          <div>
-            <p className="text-sm opacity-90">{todayStr}</p>
-            <h2 className="mt-1 text-2xl font-bold">
+          <div className="ml-6">
+            <p className=" text-sm opacity-90">{todayStr}</p>
+            <h2 className=" mt-8 text-2xl font-bold">
               Welcome back, {student.name.split(" ")[0]}!
             </h2>
-            <p className="opacity-80 text-sm">
+            <p className=" opacity-80 text-sm">
               Always stay updated in your student portal
             </p>
           </div>
-          <div className="text-right">
+          <div className="mrtext-right">
             <p className="font-semibold">{student.level}</p>
             <p className="text-sm">{student.program}</p>
           </div>

@@ -64,7 +64,6 @@ export default function Academic() {
   return (
     <div className="min-h-screen">
       <div className="max-w-6xl mx-auto p-6 space-y-8">
-        <div className="grid place-items-center"><Pill>STUDENT DASHBOARD PORTAL</Pill></div>
 
         {/* “Enrolled courses” chip */}
         <div className="h-10 rounded-full bg-purple-700 text-white font-semibold grid place-items-center shadow-[0_12px_28px_-14px_rgba(107,33,168,0.55)] w-full max-w-sm mx-auto">

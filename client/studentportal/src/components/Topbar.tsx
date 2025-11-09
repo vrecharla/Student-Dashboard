@@ -8,7 +8,7 @@ export default function Topbar() {
     >
       {/* Left: Title */}
       <h1
-        className="text-2xl font-extrabold tracking-wide px-10 py-2 rounded-full shadow-lg"
+        className="text-2xl font-extrabold tracking-wide px-30 py-2 rounded-full shadow-lg"
         style={{
           backgroundColor: "var(--color-primary)",
           color: "#fff",
