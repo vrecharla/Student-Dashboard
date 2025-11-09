@@ -25,42 +25,36 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-6xl mx-auto p-6 space-y-6">
 
-        {/* TOP PILL (like Figma title) */}
+        {/* Top chip: STUDENT DASHBOARD PORTAL (kept as in PDF) */}
         <div className="grid place-items-center">
           <div className="px-6 py-2 rounded-full bg-purple-700 text-white text-sm font-semibold shadow-[0_12px_28px_-14px_rgba(107,33,168,0.6)]">
             STUDENT DASHBOARD PORTAL
           </div>
         </div>
 
-        {/* PURPLE HERO */}
-        <div className="rounded-2xl bg-purple-700 text-white p-6 shadow-[0_16px_40px_-18px_rgba(107,33,168,.55)]">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="text-xs opacity-80">{todayStr}</div>
-              <h2 className="mt-2 text-2xl font-semibold">Welcome back, {student.name.split(" ")[0]}!</h2>
-              <p className="text-sm opacity-90">Always stay updated in your student portal</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right text-xs opacity-80">
-                {student.level}<br/>{student.program}
-              </div>
-              <div className="w-10 h-10 rounded-full bg-purple-300/30 grid place-items-center font-semibold">
-                {student.name.split(" ").map(s=>s[0]).slice(0,2).join("")}
-              </div>
-            </div>
+        {/* Purple hero banner (PDF style) */}
+        <div className="bg-purple-700 rounded-2xl p-6 text-white flex justify-between items-center shadow-lg">
+          <div>
+            <p className="text-sm opacity-90">{todayStr}</p>
+            <h2 className="mt-1 text-2xl font-bold">Welcome back, {student.name.split(" ")[0]}!</h2>
+            <p className="opacity-80 text-sm">Always stay updated in your student portal</p>
+          </div>
+          <div className="text-right">
+            <p className="font-semibold">{student.level}</p>
+            <p className="text-sm">{student.program}</p>
           </div>
         </div>
 
-        {/* KPI STRIP */}
+        {/* KPI strip */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <KPI label="GPA" value={metrics.gpa.toFixed(2)} />
           <KPI label="Attendance" value={pct(metrics.attendance_pct)} />
           <KPI label="Balance" value={`$ ${Math.max(0, data.financeSummary.balance_due).toFixed(0)}`} />
         </section>
 
-        {/* MAIN GRID: left (courses+attendance) / middle (calendar) / right (deadlines+submissions) */}
+        {/* Main three-column layout */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* LEFT COLUMN */}
+          {/* Left: Courses + Attendance */}
           <div className="space-y-6">
             <Card title="Enrolled Courses">
               <table className="w-full text-sm">
@@ -102,15 +96,15 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          {/* MIDDLE COLUMN */}
+          {/* Middle: Calendar + day card */}
           <div className="space-y-6">
             <MiniCalendar />
-            <Card title={new Date().toLocaleString(undefined,{ day:"numeric", month:"short"})}>
+            <Card title={new Date().toLocaleString(undefined, { day: "numeric", month: "short" })}>
               <p className="text-sm text-slate-600">No deadlines on this day</p>
             </Card>
           </div>
 
-          {/* RIGHT COLUMN */}
+          {/* Right: Deadlines + Submissions */}
           <div className="space-y-6">
             <Card title="Upcoming Deadlines">
               <ul className="space-y-4 text-sm">
@@ -118,9 +112,7 @@ export default function Dashboard() {
                   <li key={i} className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">{d.course_code} — {d.label}</p>
-                      <p className="text-xs text-slate-500">
-                        {new Date(d.due_date).toLocaleDateString()}
-                      </p>
+                      <p className="text-xs text-slate-500">{new Date(d.due_date).toLocaleDateString()}</p>
                     </div>
                     <Badge tone={tone(d.status)}>{d.status.replace("_"," ")}</Badge>
                   </li>

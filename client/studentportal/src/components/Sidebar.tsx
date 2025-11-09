@@ -1,13 +1,14 @@
 // src/components/Sidebar.tsx
 import { NavLink } from "react-router-dom";
 
-const linkBase = "flex items-center gap-3 px-3 py-2 rounded-lg text-sm";
-const active   = "bg-purple-50 text-purple-700 font-medium";
-const idle     = "text-slate-700 hover:bg-slate-100";
+const linkBase = "flex items-center gap-3 px-4 py-2 rounded-lg text-sm hover:bg-purple-50";
+const active   = "text-purple-700 font-medium";
+const idle     = "text-gray-700";
 
 const Item = ({ to, icon, label }: { to: string; icon: string; label: string }) => (
-  <NavLink to={to} end className={({isActive}) => `${linkBase} ${isActive ? active : idle}`}>
-    <span aria-hidden>{icon}</span> <span>{label}</span>
+  <NavLink to={to} end className={({ isActive }) => `${linkBase} ${isActive ? active : idle}`}>
+    <span aria-hidden className="text-lg">{icon}</span>
+    <span>{label}</span>
   </NavLink>
 );
 
