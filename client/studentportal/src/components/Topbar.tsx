@@ -1,38 +1,25 @@
 // src/components/Topbar.tsx
-import { useLocation } from "react-router-dom";
+import UserProfile from "./UserProfile";
 
-function titleFromPath(path: string) {
-  if (path === "/") return "Dashboard";
-  const map: Record<string, string> = {
-    "/academic": "Academic",
-    "/attendance": "Attendance",
-    "/financial": "Financial",
-    "/profile": "Profile",
-    "/login": "Login",
-  };
-  return map[path] ?? "Dashboard";
-}
-
-export default function Topbar({ alerts = 0 }: { alerts?: number }) {
-  const { pathname } = useLocation();
-  const title = titleFromPath(pathname);
-
+export default function Topbar() {
   return (
-    <header className="h-16 border-b bg-white sticky top-0 z-40">
-      <div className="h-full max-w-6xl mx-auto px-6 flex items-center justify-between">
-        <span className="px-6 py-1.5 bg-purple-600 text-white rounded-full text-sm font-medium">
-          {title}
-        </span>
+    <header
+      className="flex items-center justify-between px-10 py-4"
+    >
+      {/* Left: Title */}
+      <h1
+        className="text-2xl font-extrabold tracking-wide px-10 py-2 rounded-full shadow-lg"
+        style={{
+          backgroundColor: "var(--color-primary)",
+          color: "#fff",
+          boxShadow: "var(--shadow-soft)",
+        }}
+      >
+        STUDENT DASHBOARD PORTAL
+      </h1>
 
-        <button className="relative" title="Notifications">
-          <span role="img" aria-label="bell">🔔</span>
-          {alerts > 0 && (
-            <span className="absolute -top-1 -right-1 text-[10px] bg-rose-600 text-white rounded-full px-1.5">
-              {alerts}
-            </span>
-          )}
-        </button>
-      </div>
+      {/* Right: Profile */}
+      <UserProfile />
     </header>
   );
 }

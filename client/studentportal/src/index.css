@@ -3,11 +3,25 @@
 /* App height */
 html, body, #root { height: 100%; }
 
-/* System fonts */
+/* System fonts + theme colors */
 :root {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+
+  /* Theme color variables */
+  --color-primary: #573289;
+  --color-success: #00C853;
+  --color-warning: #FFB300;
+  --color-danger: #D32F2F;
+  --color-border: #4F378B;
+  --color-background: #FFFFFF;
+  --color-shadow: #000000;
+
+  --shadow-soft: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Remove old demo styles; keep things minimal */
-body { margin: 0; background: #f8fafc; color: #0f172a; }
-
+/* Base body style */
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: #0f172a;
+}

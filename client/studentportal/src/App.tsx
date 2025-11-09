@@ -14,7 +14,7 @@ function ShellLayout({ children }: { children: React.ReactNode }) {
     <div className="h-full flex">
       <Sidebar />
       <div className="flex-1 flex flex-col">
-        <Topbar alerts={2} />
+        <Topbar/>
         <main className="flex-1">{children}</main>
       </div>
     </div>
