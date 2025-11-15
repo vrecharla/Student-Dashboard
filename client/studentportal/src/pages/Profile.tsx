@@ -1,13 +1,16 @@
-// src/pages/Profile.tsx
 import { useEffect, useState } from "react";
 import type { DashboardDTO } from "../types/dashboard";
 import { getDashboard } from "../api/client";
-import Card from "../components/Card";
+import PageLoader from "../components/PageLoader";
 
 export default function Profile() {
   const [data, setData] = useState<DashboardDTO | null>(null);
-  useEffect(() => { getDashboard("S001", "Spring 2024").then(setData); }, []);
-  if (!data) return <div className="p-6">Loading…</div>;
+
+  useEffect(() => {
+    getDashboard("S001", "Spring 2024").then(setData);
+  }, []);
+
+  if (!data) return <PageLoader />;
 
   const { student } = data;
   const dob = new Date(student.dob).toLocaleDateString();
@@ -15,77 +18,96 @@ export default function Profile() {
   const emergency = student.emergency_contact ?? "—";
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="space-y-10 px-6">
 
-        {/* header banner */}
-        <Card>
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-xs text-slate-500">Student</p>
-              <p className="text-lg font-semibold">{student.name}</p>
-              <p className="text-xs text-slate-500">3rd Year • {student.program}</p>
-            </div>
-            <div className="text-xs text-slate-600">
-              <p>Email: <span className="font-medium text-slate-800">{student.mail_id}</span></p>
-              <p>Admit Term: <span className="font-medium text-slate-800">{student.admit_term}</span></p>
-            </div>
-          </div>
-        </Card>
-
-        <Card title="Personal Information">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-slate-500">Full Name</p>
-              <p className="font-medium">{student.name}</p>
-            </div>
-            <div>
-              <p className="text-slate-500">Date of Birth</p>
-              <p className="font-medium">{dob}</p>
-            </div>
-            <div>
-              <p className="text-slate-500">Gender</p>
-              <p className="font-medium">{student.gender}</p>
-            </div>
-            <div>
-              <p className="text-slate-500">Status</p>
-              <p className="font-medium">{student.status}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card title="Contact Information">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-slate-500">Email Address</p>
-              <p className="font-medium">{student.mail_id}</p>
-            </div>
-            <div>
-              <p className="text-slate-500">Phone Number</p>
-              <p className="font-medium">{phone}</p>
-            </div>
-            <div className="md:col-span-2">
-              <p className="text-slate-500">Emergency Contact</p>
-              <p className="font-medium">{emergency}</p>
-            </div>
-          </div>
-        </Card>
-
-        {/* New details per PDF */}
-        <Card>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-slate-500">Advisor</p>
-              <p className="font-medium">Dr. Sarah Bennett</p>
-            </div>
-            <div>
-              <p className="text-slate-500">Enrollment Status</p>
-              <p className="font-medium">Active</p>
-            </div>
-          </div>
-        </Card>
-
+      {/* SECTION TITLE */}
+      <div
+        className="rounded-xl text-white text-left text-lg px-10 py-2 font-semibold"
+        style={{
+          backgroundColor: "var(--color-primary)",
+          boxShadow: "var(--shadow-soft)",
+        }}
+      >
+        Profile Overview
       </div>
+
+      {/* PROFILE TABLE */}
+      <div
+        className="rounded-xl overflow-hidden"
+        style={{
+          backgroundColor: "var(--color-background)",
+          boxShadow: "var(--shadow-soft)",
+        }}
+      >
+        <table className="px-2 w-full">
+          <thead>
+            <tr className="text-left font-semibold text-l underline underline-offset-4"
+            style={{
+              backgroundColor: "var(--color-background)",
+              color: "var(--color-primary)",
+            }}>
+              <th className="px-6 py-2">Field</th>
+              <th>
+                Value
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr><td className="px-6 py-2" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Full Name</td><td style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>{student.name}</td></tr>
+            <tr><td className="px-6 py-2">Date of Birth</td><td >{dob}</td></tr>
+            <tr><td className="px-6 py-2" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Phone Number</td><td style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>{phone}</td></tr>
+            <tr><td className="px-6 py-2">Email</td><td >{student.mail_id}</td></tr>
+            <tr><td className="px-6 py-2" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Student ID</td><td style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>{student.s_id}</td></tr>
+            <tr><td className="px-6 py-2">Program</td><td >{student.program}</td></tr>
+            <tr><td className="px-6 py-2" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Year</td><td style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }} >{student.year} Year</td></tr>
+            <tr><td className="px-6 py-2">Advisor</td><td >Dr. Sarah Bennett</td></tr>
+            <tr><td className="px-6 py-2" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Enrollment Status</td><td style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }} >Active</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* CONTACT DETAILS SECTION */}
+      <div
+        className="rounded-xl text-white text-left text-lg px-10 py-2 font-semibold"
+        style={{
+          backgroundColor: "var(--color-primary)",
+          boxShadow: "var(--shadow-soft)",
+        }}
+      >
+        Contact Details
+      </div>
+
+      {/* CONTACT TABLE */}
+      <div
+        className="rounded-xl overflow-hidden"
+        style={{
+          backgroundColor: "var(--color-background)",
+          boxShadow: "var(--shadow-soft)",
+        }}
+      >
+         <table className="px-2 w-full">
+          <thead>
+            <tr className="text-left font-semibold text-l underline underline-offset-4"
+            style={{
+              backgroundColor: "var(--color-background)",
+              color: "var(--color-primary)",
+            }}>
+              <th className="px-6 py-2">Field</th>
+              <th>
+                Value
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr><td className="px-6 py-2" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Address</td><td style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }} >{student.address ?? "—"}</td></tr>
+            <tr><td className="px-6 py-2">Emergency Contact</td><td >{emergency}</td></tr>
+            <tr><td className="px-6 py-2" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Emergency Phone Number</td><td style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }} >{student.emergency_contact ?? "—"}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
     </div>
   );
 }

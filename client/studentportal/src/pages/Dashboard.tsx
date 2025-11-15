@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import type { DashboardDTO } from "../types/dashboard";
 import { getDashboard } from "../api/client";
 import Progress from "../components/Progress";
+import PageLoader from "../components/PageLoader";
+import Bottom from "../components/Bottom";
 
 // --- CalendarCard component ---
 function CalendarCard({
@@ -117,7 +119,7 @@ export default function Dashboard() {
       });
   }, []);
 
-  if (!data) return <div className="p-6">Loading…</div>;
+  if (!data) return <PageLoader />;
 
   const { metrics, student } = data;
 
@@ -131,9 +133,16 @@ export default function Dashboard() {
   const selectedDeadlines = deadlinesByDate.get(selectedDate.toDateString()) || [];
 
   return (
-    <div className="space-y-6 px-6">
+    <div className="space-y-10 px-6">
       {/* Header */}
-      <div className="bg-[var(--color-primary)] text-white p-6 rounded-xl shadow-lg" style={{ boxShadow: "var(--shadow-soft)" }}>
+      <div className="bg-[var(--color-primary)] text-white p-6 rounded-2xl shadow-lg" style={{ boxShadow: "var(--shadow-soft)" }}>
+        <p className="opacity-80 text-xs mb-2 pb-6">
+          {new Date().toLocaleDateString(undefined, {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}
+        </p>
         <h2 className="text-2xl font-bold">Welcome back, {student.name.split(" ")[0]}!</h2>
         <p className="opacity-90 text-sm">Stay updated in your student portal</p>
       </div>
@@ -248,7 +257,7 @@ export default function Dashboard() {
             <h3 className="font-semibold text-[var(--color-primary)] mb-3">Recent Assignments</h3>
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-500">
+                <tr className="text-left text-grey-500">
                   <th className="py-2">Assignment</th>
                   <th>Course</th>
                   <th>Grade</th>

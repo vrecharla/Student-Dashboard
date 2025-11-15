@@ -8,6 +8,7 @@ import Attendance from "./pages/Attendance";
 import Finance from "./pages/Finance";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
+import Bottom from "./components/Bottom";
 
 function ShellLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -24,6 +25,7 @@ function ShellLayout({ children }: { children: React.ReactNode }) {
       >
         <Topbar />
         <main className="flex-1 p-4">{children}</main>
+        <Bottom />
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ export const demoDashboard: DashboardDTO = {
     { c_id: "C001", c_title: "Introduction to IT", c_code: "IT101", credits: 3 },
     { c_id: "C002", c_title: "Systems Analysis",   c_code: "MIS202", credits: 3 },
     { c_id: "C003", c_title: "Data Literacy",      c_code: "STAT115", credits: 3 },
+    { c_id: "C004", c_title: "Data Literacy",      c_code: "STAT115", credits: 3 },
   ],
   enrollments: [
     { e_id:"E001", s_id:"S001", c_id:"C001", term:"Spring 2024", registration_status:"Registered", overall_hours:40, gpa:3.5 },
@@ -20,14 +21,15 @@ export const demoDashboard: DashboardDTO = {
     { a_id:"A001", c_id:"C001", a_name:"Assignment 1 (IT)", due:"2025-03-01", max_score:100 },
     { a_id:"A002", c_id:"C002", a_name:"Midterm MIS202",   due:"2025-03-15", max_score:100 },
     { a_id:"A003", c_id:"C003", a_name:"Final STAT115",    due:"2025-04-01", max_score:100 },
+    { a_id:"A004", c_id:"C001", a_name:"Assignment 2 (IT)", due:"2025-03-01", max_score:100 },
   ],
   grades: [
     { g_id:"G001", s_id:"S001", a_id:"A001", submitted_date:"2025-03-01", status:"Submitted", score:90 },
     { g_id:"G002", s_id:"S001", a_id:"A002", submitted_date:"2025-03-15", status:"Submitted", score:85 },
   ],
   attendance: [
-    { record_id:"AT001", s_id:"S001", c_id:"C001", attendance_pct:90 },
-    { record_id:"AT002", s_id:"S001", c_id:"C002", attendance_pct:88 },
+    { record_id:"AT001", s_id:"S001", c_id:"C001", attendance_pct:84 },
+    { record_id:"AT002", s_id:"S001", c_id:"C002", attendance_pct:74 },
     { record_id:"AT003", s_id:"S001", c_id:"C003", attendance_pct:93 },
   ],
   financeSummary: { balance_due: 0, total_amount: 4000, next_due_date: "2025-04-20" },

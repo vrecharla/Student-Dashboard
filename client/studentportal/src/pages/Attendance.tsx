@@ -1,61 +1,136 @@
-// src/pages/Finance.tsx
 import { useEffect, useState } from "react";
 import type { DashboardDTO } from "../types/dashboard";
 import { getDashboard } from "../api/client";
-import SectionPill from "../components/SectionPill";
-import Card from "../components/Card";
-import KPI from "../components/KPI";
+import PageLoader from "../components/PageLoader";
 
-function fmt(n: number) { return `$ ${Number(n).toLocaleString()}`; }
-
-export default function Finance() {
+export default function Attendance() {
   const [data, setData] = useState<DashboardDTO | null>(null);
-  useEffect(() => { getDashboard("S001", "Spring 2024").then(setData); }, []);
-  if (!data) return <div className="p-6">Loading…</div>;
 
-  const total = 10000, paid = 8000, bal = total - paid;
-  const rows = [
-    { term: "Fall 2024",   fees: total, due: "November 15th 2025", status: "Pending" },
-    { term: "Spring 2024", fees: total, due: "March 25th 2025",    status: "Paid" },
-  ];
+  useEffect(() => {
+    getDashboard("S001", "Spring 2024").then(setData);
+  }, []);
+
+  if (!data) return ( <PageLoader /> );
+
+    // Build dynamic messages based on actual attendance
+  const getStatusMessage = (courseTitle: string, pct: number) => {
+    if (pct < 75) return `${courseTitle} - Below required attendance (${pct}%).`;
+    if (pct < 85) return `${courseTitle} - Approaching risk threshold (${pct}%).`;
+    return `${courseTitle} - Current attendance is good (${pct}%).`;
+  };
+
+  // Color selection based on attendance
+  const getStatusColor = (pct: number) => {
+    if (pct < 75) return "var(--color-danger)";
+    if (pct < 85) return "var(--color-warning)";
+    return "var(--color-success)";
+  };
+
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-6xl mx-auto p-6 space-y-8">
-
-        <div className="h-10 rounded-full bg-purple-700 text-white font-semibold grid place-items-center shadow-[0_12px_28px_-14px_rgba(107,33,168,0.55)] w-full max-w-sm mx-auto">
-          Financial Overview
+      <div className="space-y-10 px-6">
+        {/* Attendance title pill */}
+        <div
+          className="rounded-xl text-white text-left text-xl px-10 py-2 font-bold"
+          style={{
+          backgroundColor: "var(--color-primary)",
+          boxShadow: "var(--shadow-soft)",
+        }}
+        >
+          Attendance Overview
         </div>
 
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <KPI label="Total Fees" value={fmt(total)} />
-          <KPI label="Fees Paid"  value={fmt(paid)} />
-          <KPI label="Balance"    value={fmt(bal)} />
-        </section>
+        {/* Attendance Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 p-3">
+          {data.attendance.slice(0, 3).map((a, i) => {
+            const c = data.courses.find(x => x.c_id === a.c_id);
+            const pct = Math.max(0, Math.min(100, a.attendance_pct));
 
-        <Card title="Payment Details">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left">
-                <th className="py-2">Term</th>
-                <th>Fees</th>
-                <th>Due Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, i) => (
-                <tr key={i} className={["border-t", i % 2 ? "bg-slate-50/60" : ""].join(" ")}>
-                  <td className="py-2">{r.term}</td>
-                  <td>{fmt(r.fees)}</td>
-                  <td>{r.due}</td>
-                  <td className={r.status === "Pending" ? "text-amber-600 font-medium" : ""}>{r.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
+            return (
+              <div
+                key={a.record_id}
+                className="rounded-2xl p-6 bg-white"
+                style={{ boxShadow: "var(--shadow-soft)" }}
+              >
+                <p className="text-lg font-bold">{c?.c_code}</p>
+                <p className="text-md text-grey-600 mb-6 border-b-4 border-[var(--color-primary)]">
+                  {c?.c_title ?? "Course Name"}
+                </p>
+
+                {/* Circular progress */}
+                <div className="flex items-center justify-center">
+                  <svg width="110" height="110">
+                    <circle
+                      cx="55"
+                      cy="55"
+                      r="45"
+                      fill="none"
+                      stroke="rgba(87,50,137,0.15)"
+                      strokeWidth="10"
+                    />
+                    <circle
+                      cx="55"
+                      cy="55"
+                      r="45"
+                      fill="none"
+                      stroke="var(--color-primary)"
+                      strokeWidth="10"
+                      strokeDasharray={`${(pct / 100) * 2 * Math.PI * 45} ${
+                        2 * Math.PI * 45
+                      }`}
+                      strokeLinecap="round"
+                      transform="rotate(-90 55 55)"
+                    />
+                    <text
+                      x="50%"
+                      y="50%"
+                      dominantBaseline="middle"
+                      textAnchor="middle"
+                      fontSize="20"
+                      fontWeight="700"
+                      fill="#000"
+                    >
+                      {pct}%
+                    </text>
+                  </svg>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Attendance Status */}
+        <div
+          className="rounded-xl text-white text-left text-xl px-10 py-2 font-bold"
+          style={{
+          backgroundColor: "var(--color-primary)",
+          boxShadow: "var(--shadow-soft)",
+        }}
+        >
+          Attendance Status
+        </div>
+
+        {/* Status Bars */}
+        <div className="space-y-4">
+          {data.attendance.slice(0, 3).map((a) => {
+            const c = data.courses.find(x => x.c_id === a.c_id);
+            const pct = Math.max(0, Math.min(100, a.attendance_pct));
+
+            return (
+              <div
+                key={a.record_id}
+                className="text-white py-3 px-4 rounded-xl text-sm font-medium"
+                style={{
+                  backgroundColor: getStatusColor(pct),
+                  color: "black",
+                  boxShadow: "var(--shadow-soft)",
+                }}
+              >
+                {getStatusMessage(c?.c_title ?? "Course", pct)}
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
   );
 }
