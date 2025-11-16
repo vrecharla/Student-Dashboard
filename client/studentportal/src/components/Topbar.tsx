@@ -22,7 +22,7 @@ export default function Topbar() {
       {/* Right: Profile */}
       <UserProfile
         name={getStudent()?.name}
-        role={getStudent()?.role}
+        term={getStudent()?.admit_term ?? getStudent()?.term}
         avatar={getStudent()?.avatar}
       />
     </header>

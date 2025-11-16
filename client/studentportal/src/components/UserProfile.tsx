@@ -3,6 +3,9 @@ import { User } from "lucide-react";
 
 export type UserProfileProps = {
   name?: string;
+  // term replaces the previous 'role' prop — keep 'role' as optional alias for
+  // backwards compatibility with existing usages.
+  term?: string;
   role?: string;
   avatar?: string;
   /** Tailwind size classes for the avatar (e.g. "w-10 h-10") */
@@ -17,12 +20,14 @@ export type UserProfileProps = {
  */
 export default function UserProfile({
   name = "John Doe",
-  role = "3rd year",
+  term,
+  role = undefined,
   avatar = "/assets/avatar.png",
   sizeClass = "w-10 h-10",
   className = "",
 }: UserProfileProps) {
   const [imgError, setImgError] = useState(false);
+  const displayTerm = term ?? "Spring 2024";
 
   return (
     <div className={`flex items-center gap-3 ${className}`.trim()}>
@@ -41,7 +46,7 @@ export default function UserProfile({
 
       <div className="text-left">
         <p className="text-sm font-semibold text-black">{name}</p>
-        <p className="text-xs text-black/80">{role}</p>
+        <p className="text-xs text-black/80">{displayTerm}</p>
       </div>
     </div>
   );

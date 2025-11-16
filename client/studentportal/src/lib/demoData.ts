@@ -34,10 +34,6 @@ export const demoDashboard: DashboardDTO = {
   ],
   financeSummary: { balance_due: 0, total_amount: 4000, next_due_date: "2025-04-20" },
   metrics: { overall_progress_pct: 0.72, gpa: 3.4, attendance_pct: 0.85, alerts_unread: 2 },
-  deadlines: [
-    { course_code:"MIS202", label:"Assignment 2", due_date:"2025-10-15", status:"due_soon" },
-    { course_code:"IT101",  label:"Quiz 4",       due_date:"2025-10-20", status:"ok" }
-  ],
   recommendations: [
     "Attend MIS202 labs; attendance <75%.",
     "Book tutoring for Systems Analysis.",

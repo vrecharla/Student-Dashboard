@@ -1,7 +1,10 @@
 from models import DashboardDTO
 from auth import get_password_hash
 
-DEMO: DashboardDTO = DashboardDTO(
+# Demo fixture kept for historical/seeding purposes but NOT used by the API.
+# The server no longer exposes demo data; endpoints will return errors when
+# the database is not available.
+DEMO_LEGACY: DashboardDTO = DashboardDTO(
     student=dict(
         s_id="S001",
         name="John Smith",

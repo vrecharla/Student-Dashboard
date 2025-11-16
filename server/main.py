@@ -4,7 +4,6 @@ from typing import Dict
 from auth import verify_password, create_access_token
 from fastapi.middleware.cors import CORSMiddleware
 from models import DashboardDTO
-from seed import DEMO
 import db
 from typing import Any
 import os
@@ -28,7 +27,7 @@ async def startup():
     try:
         app.state.db = await db.create_pool()
     except Exception:
-        # ignore — keep demo fallback behavior
+        # could not create DB pool; endpoints will surface service-unavailable
         app.state.db = None
 
 
@@ -52,94 +51,85 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     username = form_data.username
     password = form_data.password
     pool = getattr(app.state, "db", None)
-    # If DB is available, attempt to find student and verify password_hash
-    if pool:
-        try:
-            row = await db.fetch_one(pool, "SELECT * FROM student WHERE s_id=$1", username)
-            if row:
-                r = dict(row)
-                ph = r.get("password_hash")
-                if ph and verify_password(password, ph):
-                    token = create_access_token(subject=username)
-                    return {"access_token": token, "token_type": "bearer", "student": r}
-                # found user but no matching password
-                raise HTTPException(status_code=401, detail="Invalid credentials")
-        except HTTPException:
-            raise
-        except Exception:
-            # fall through to demo check
-            pass
+    # If DB is not available, return service unavailable
+    if not pool:
+        raise HTTPException(status_code=503, detail="Service unavailable")
 
-    # fallback: allow demo user using DEFAULT_PASSWORD env (default 'hsu@1234')
-    from seed import DEMO
-    default_password = os.getenv("DEFAULT_PASSWORD", "hsu@1234")
-    if username == DEMO.student.s_id and password == default_password:
-        token = create_access_token(subject=username)
-        return {"access_token": token, "token_type": "bearer", "student": DEMO.student.model_dump()}
-
-    raise HTTPException(status_code=401, detail="Invalid credentials")
+    # Attempt to find student and verify password_hash
+    try:
+        row = await db.fetch_one(pool, "SELECT * FROM student WHERE s_id=$1", username)
+        if row:
+            r = dict(row)
+            ph = r.get("password_hash")
+            if ph and verify_password(password, ph):
+                token = create_access_token(subject=username)
+                return {"access_token": token, "token_type": "bearer", "student": r}
+        # not found or password mismatch
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @app.get("/students/{student_id}")
 async def get_student(student_id: str) -> Any:
     pool = getattr(app.state, "db", None)
-    if pool:
-        try:
-            row = await db.fetch_one(pool, "SELECT * FROM student WHERE s_id=$1", student_id)
-            if row:
-                # map email -> mail_id and st_phno -> student_phone to match DTO
-                r = dict(row)
-                if "email" in r:
-                    r["mail_id"] = r.pop("email")
-                if "st_phno" in r:
-                    r["student_phone"] = r.pop("st_phno")
-                return r
-            raise HTTPException(status_code=404, detail="Student not found")
-        except Exception:
-            # fall through to demo behavior
-            pass
-    # fallback to demo
-    if DEMO.student.s_id == student_id:
-        return DEMO.student.model_dump()
-    raise HTTPException(status_code=404, detail="Student not found")
+    if not pool:
+        raise HTTPException(status_code=503, detail="Service unavailable")
+    try:
+        row = await db.fetch_one(pool, "SELECT * FROM student WHERE s_id=$1", student_id)
+        if row:
+            # map email -> mail_id and st_phno -> student_phone to match DTO
+            r = dict(row)
+            if "email" in r:
+                r["mail_id"] = r.pop("email")
+            if "st_phno" in r:
+                r["student_phone"] = r.pop("st_phno")
+            return r
+        raise HTTPException(status_code=404, detail="Student not found")
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @app.get("/courses")
 async def get_courses() -> Any:
     pool = getattr(app.state, "db", None)
-    if pool:
-        try:
-            rows = await db.fetch_all(
-                pool,
-                "SELECT c.*, i.name AS instructor_name FROM course c LEFT JOIN course_instructor ci ON ci.c_id = c.c_id LEFT JOIN instructor i ON i.t_id = ci.t_id"
-            )
-            # map title/code to c_title/c_code for consistency with DTO naming
-            mapped = []
-            for r in rows:
-                m = dict(r)
-                if "title" in m:
-                    m["c_title"] = m.pop("title")
-                if "code" in m:
-                    m["c_code"] = m.pop("code")
-                if "instructor_name" in m and m.get("instructor_name") is None:
-                    m["instructor_name"] = None
-                mapped.append(m)
-            return mapped
-        except Exception:
-            pass
-    return [c.model_dump() for c in DEMO.courses]
+    if not pool:
+        raise HTTPException(status_code=503, detail="Service unavailable")
+    try:
+        rows = await db.fetch_all(
+            pool,
+            "SELECT c.*, i.name AS instructor_name FROM course c LEFT JOIN course_instructor ci ON ci.c_id = c.c_id LEFT JOIN instructor i ON i.t_id = ci.t_id"
+        )
+        # map title/code to c_title/c_code for consistency with DTO naming
+        mapped = []
+        for r in rows:
+            m = dict(r)
+            if "title" in m:
+                m["c_title"] = m.pop("title")
+            if "code" in m:
+                m["c_code"] = m.pop("code")
+            if "instructor_name" in m and m.get("instructor_name") is None:
+                m["instructor_name"] = None
+            mapped.append(m)
+        return mapped
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @app.get("/enrollments/{student_id}")
 async def get_enrollments(student_id: str) -> Any:
     pool = getattr(app.state, "db", None)
-    if pool:
-        try:
-            rows = await db.fetch_all(pool, "SELECT * FROM enrollment WHERE s_id=$1", student_id)
-            return rows
-        except Exception:
-            pass
-    return [e.model_dump() for e in DEMO.enrollments if e.s_id == student_id]
+    if not pool:
+        raise HTTPException(status_code=503, detail="Service unavailable")
+    try:
+        rows = await db.fetch_all(pool, "SELECT * FROM enrollment WHERE s_id=$1", student_id)
+        return rows
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @app.get("/dashboard/{student_id}", response_model=DashboardDTO)
@@ -264,10 +254,15 @@ async def get_dashboard(student_id: str, term: str | None = None):
             # Responses; assignments carry their due dates and the client
             # should use assignment.due to surface calendar items.
 
-            # Compute metrics. Use demo metrics as a base but derive attendance_pct
-            # from the attendance rows fetched from the DB. The frontend expects
-            # metrics.attendance_pct to be a fraction in the range 0..1.
-            metrics = DEMO.metrics.model_dump()
+            # Compute metrics. Start from safe defaults and derive values
+            # from the fetched rows. The frontend expects metrics.attendance_pct
+            # to be a fraction in the range 0..1.
+            metrics = {
+                "overall_progress_pct": 0.0,
+                "gpa": 0.0,
+                "attendance_pct": 0.0,
+                "alerts_unread": 0,
+            }
             try:
                 total = 0.0
                 count = 0
@@ -288,8 +283,8 @@ async def get_dashboard(student_id: str, term: str | None = None):
                     count += 1
                 metrics["attendance_pct"] = (total / count) if count > 0 else 0.0
             except Exception:
-                # fallback to demo metric if anything goes wrong
-                metrics = DEMO.metrics.model_dump()
+                # if anything unexpected occurs while computing attendance, log and continue
+                metrics["attendance_pct"] = 0.0
             # Compute GPA as average of per-enrollment gpa values (if present)
             try:
                 g_total = 0.0
@@ -319,20 +314,18 @@ async def get_dashboard(student_id: str, term: str | None = None):
                 "assignments": assignments_mapped,
                 "grades": grades_mapped,
                 "attendance": attendance,
-                "financeSummary": finance_mapped or DEMO.financeSummary.model_dump(),
+                "financeSummary": finance_mapped or {},
                 "metrics": metrics,
                 # no 'deadlines' field
-                "recommendations": recommendations or DEMO.recommendations,
+                "recommendations": recommendations or [],
             }
             return payload
         except HTTPException:
             raise
         except Exception as e:
-            # If anything goes wrong (missing tables, parse issues), fall back
-            # to demo data.
+            # If anything goes wrong (missing tables, parse issues), surface an error
             print(e.__str__())
-            print("Falling back to demo data due to DB error")
-            pass
+            raise HTTPException(status_code=500, detail="Internal server error")
     # fallback while DB is not ready — do not return demo data automatically
     # Surface a service-unavailable error so clients don't receive seeded demo entries
     raise HTTPException(status_code=503, detail="Service unavailable")
