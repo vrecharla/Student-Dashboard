@@ -20,6 +20,7 @@ class Course(BaseModel):
     c_title: str
     c_code: str
     credits: int
+    instructor_name: Optional[str] = None
 
 class Enrollment(BaseModel):
     e_id: str
@@ -62,13 +63,6 @@ class Metrics(BaseModel):
     gpa: float
     attendance_pct: float
     alerts_unread: int
-
-class Deadline(BaseModel):
-    course_code: str
-    label: str
-    due_date: str
-    status: Literal["ok","due_soon","overdue"]
-
 class DashboardDTO(BaseModel):
     student: Student
     courses: List[Course]
@@ -78,5 +72,4 @@ class DashboardDTO(BaseModel):
     attendance: List[Attendance]
     financeSummary: FinanceSummary
     metrics: Metrics
-    deadlines: List[Deadline]
     recommendations: List[str]

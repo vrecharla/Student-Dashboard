@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { DashboardDTO } from "../types/dashboard";
 import { getDashboard } from "../api/client";
+import { getStudentId } from "../lib/auth";
 import PageLoader from "../components/PageLoader";
 
 
@@ -11,7 +12,8 @@ export default function Academic() {
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
 
   useEffect(() => {
-    getDashboard("S001", "Spring 2024")
+    const sId = getStudentId() || "S3001";
+    getDashboard(sId, "Spring 2024")
       .then((d) => {
         setData(d);
         if (d?.courses?.[0]) setSelectedCourse(d.courses[0].c_id);
@@ -95,9 +97,9 @@ export default function Academic() {
                 style={{ backgroundColor: "var(--color-background)" }}
               >
                 <h3 className="text-lg font-semibold">
-                  {c.c_name ?? `Course Name ${index + 1}`}
+                  {c.c_title ?? `Course Name ${index + 1}`}
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">{c.c_code}</p>
+                <p className="text-sm text-gray-500 mt-1">{c.c_id}</p>
               </div>
 
               {/* BOTTOM SECTION — purple */}
@@ -105,7 +107,7 @@ export default function Academic() {
                 className="p-5 text-white"
                 style={{ backgroundColor: "var(--color-primary)" }}
               >
-                <p>Instructor Name {index + 1}</p>
+                <p>{c.instructor_name ?? `Instructor ${index + 1}`}</p>
                 <p>Credits: {c.credits}</p>
                 <p>Overall hours: {hours}</p>
               </div>

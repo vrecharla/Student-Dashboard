@@ -1,10 +1,22 @@
 from models import DashboardDTO
+from auth import get_password_hash
 
 DEMO: DashboardDTO = DashboardDTO(
     student=dict(
-        s_id="S001", name="John Smith", mail_id="john.smith@hsu.edu", gender="M",
-        dob="2003-02-14", student_phone="7776665550", emergency_contact="9998887770",
-        program="BSc IT", age=21, status="Active", level="Undergrad", admit_term="Spring 2024"
+        s_id="S001",
+        name="John Smith",
+        mail_id="john.smith@hsu.edu",
+        gender="M",
+        dob="2003-02-14",
+        student_phone="7776665550",
+        emergency_contact="9998887770",
+        program="BSc IT",
+        age=21,
+        status="Active",
+        level="Undergrad",
+        admit_term="Spring 2024",
+        # default demo password (same for demo user): hsu@1234
+        password_hash=get_password_hash("hsu@1234"),
     ),
     courses=[
         dict(c_id="C001", c_title="Introduction to IT", c_code="IT101", credits=3),

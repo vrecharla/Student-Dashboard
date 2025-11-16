@@ -1,5 +1,6 @@
 // src/components/Topbar.tsx
 import UserProfile from "./UserProfile";
+import { getStudent } from "../lib/auth";
 
 export default function Topbar() {
   return (
@@ -19,7 +20,11 @@ export default function Topbar() {
       </h1>
 
       {/* Right: Profile */}
-      <UserProfile />
+      <UserProfile
+        name={getStudent()?.name}
+        role={getStudent()?.role}
+        avatar={getStudent()?.avatar}
+      />
     </header>
   );
 }

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import type { DashboardDTO } from "../types/dashboard";
 import { getDashboard } from "../api/client";
+import { getStudentId } from "../lib/auth";
 import Progress from "../components/Progress";
 import PageLoader from "../components/PageLoader";
-import Bottom from "../components/Bottom";
 
 // --- CalendarCard component ---
 function CalendarCard({
@@ -78,59 +78,59 @@ function CalendarCard({
 
 export default function Dashboard() {
   const [data, setData] = useState<DashboardDTO | null>(null);
+  const [err, setErr] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   useEffect(() => {
-    getDashboard("S001", "Spring 2024")
+    const sId = getStudentId() || "S3001";
+    getDashboard(sId, "Spring 2024")
       .then(setData)
-      .catch(() => {
-        // Dummy fallback data
-        setData({
-          student: { name: "John Doe" },
-          metrics: { gpa: 3.8, attendance_pct: 0.94 },
-          financeSummary: { balance_due: 300 },
-          courses: [
-            { c_id: "C1", c_title: "Data Structures", c_code: "CS201", credits: 3 },
-            { c_id: "C2", c_title: "Operating Systems", c_code: "CS301", credits: 4 },
-            { c_id: "C3", c_title: "Discrete Math", c_code: "MTH220", credits: 3 },
-          ],
-          attendance: [
-            { c_id: "C1", attendance_pct: 95 },
-            { c_id: "C2", attendance_pct: 90 },
-            { c_id: "C3", attendance_pct: 88 },
-          ],
-          deadlines: [
-            { course_code: "CS201", label: "Project Due", due_date: new Date().toISOString() },
-            {
-              course_code: "MTH220",
-              label: "Midterm Exam",
-              due_date: new Date(Date.now() + 86400000 * 3).toISOString(),
-            },
-          ],
-          assignments: [
-            { a_id: "A1", a_name: "Lab Report", c_id: "C1" },
-            { a_id: "A2", a_name: "Essay", c_id: "C3" },
-          ],
-          grades: [
-            { g_id: "G1", a_id: "A1", score: "A" },
-            { g_id: "G2", a_id: "A2", score: "B+" },
-          ],
-        } as any);
+      .catch((e) => {
+        // Remove demo fallback; surface error so UI can show a message
+        setErr(String(e ?? "Failed to load dashboard"));
       });
   }, []);
 
+  if (err) return <div className="p-6 text-red-600">Could not load dashboard: {err}</div>;
   if (!data) return <PageLoader />;
 
   const { metrics, student } = data;
 
-  // Group deadlines by date
+  // Build calendar items from assignment due dates only (server no longer returns a separate `deadlines` field)
   const deadlinesByDate = new Map<string, any[]>();
-  data.deadlines.forEach((d) => {
-    const key = new Date(d.due_date).toDateString();
+  const normalizedDeadlines: any[] = [];
+
+  // include assignment due dates as calendar deadlines
+  (data.assignments ?? []).forEach((a: any) => {
+    const dueRaw = a.due ?? a.due_date ?? a.dueDate ?? null;
+    const due = dueRaw ? new Date(dueRaw) : null;
+    // find course code for label/context
+    const course = data.courses?.find((c) => c.c_id === a.c_id);
+    normalizedDeadlines.push({
+      course_code: course?.c_id,
+      label: a.a_name ?? a.a_id,
+      due,
+      _source: "assignment",
+      a_id: a.a_id,
+    });
+  });
+
+  // build map for calendar highlighting and selected date lists
+  normalizedDeadlines.forEach((d) => {
+    if (!d.due) return;
+    const key = d.due.toDateString();
     if (!deadlinesByDate.has(key)) deadlinesByDate.set(key, []);
     deadlinesByDate.get(key)!.push(d);
   });
   const selectedDeadlines = deadlinesByDate.get(selectedDate.toDateString()) || [];
+
+  // Prepare upcoming deadlines (sorted ascending) and limit to next 5
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const upcomingDeadlines = normalizedDeadlines
+    .filter((d) => d.due != null && d.due!.getTime() >= todayStart.getTime())
+    .sort((a, b) => (a.due!.getTime() - b.due!.getTime()))
+    .slice(0, 5);
 
   return (
     <div className="space-y-10 px-6">
@@ -218,7 +218,7 @@ export default function Dashboard() {
                   {data.courses.map((c, i) => (
                     <tr key={c.c_id} className={i % 2 === 1 ? "bg-gray-50" : ""}>
                       <td className="py-2">{c.c_title}</td>
-                      <td>{c.c_code}</td>
+                      <td>{c.c_id}</td>
                       <td>{c.credits}</td>
                     </tr>
                   ))}
@@ -249,7 +249,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Recent Assignments */}
+          {/* Recent Assignments (most recent submitted — max 5) */}
           <div className="bg-white shadow-md rounded-xl p-4"
            style={{
                   boxShadow: "var(--shadow-soft)",
@@ -260,21 +260,50 @@ export default function Dashboard() {
                 <tr className="text-left text-grey-500">
                   <th className="py-2">Assignment</th>
                   <th>Course</th>
+                  <th>Due</th>
                   <th>Grade</th>
                 </tr>
               </thead>
               <tbody>
-                {data.grades.map((g, i) => {
-                  const a = data.assignments.find((x) => x.a_id === g.a_id);
-                  const c = a ? data.courses.find((x) => x.c_id === a.c_id) : undefined;
-                  return (
-                    <tr key={g.g_id} className={i % 2 === 1 ? "bg-gray-50" : ""}>
-                      <td className="py-2">{a?.a_name ?? "-"}</td>
-                      <td>{c?.c_code ?? "-"}</td>
-                      <td>{g.score}</td>
+                {(() => {
+                  const assignments = data.assignments ?? [];
+                  const grades = data.grades ?? [];
+                  const courses = data.courses ?? [];
+
+                  // Augment assignments with grade, course and parsed due date
+                  const augmented = assignments.map((a) => {
+                    const g = grades.find((x) => x.a_id === a.a_id);
+                    const course = courses.find((x) => x.c_id === a.c_id);
+                    const dueRaw = (a as any).due ?? (a as any).due_date ?? null;
+                    const due = dueRaw ? new Date(dueRaw) : null;
+                    return { a, g, course, due };
+                  });
+
+                  // Keep only submitted (or graded) assignments that have a due date
+                  const submitted = augmented
+                    .filter((x) => x.g && (x.g.status === "Submitted" || x.g.score != null) && x.due)
+                    .sort((x, y) => (y.due!.getTime() - x.due!.getTime()))
+                    .slice(0, 5);
+
+                  if (submitted.length === 0) {
+                    return (
+                      <tr>
+                        <td colSpan={4} className="py-6 text-center text-gray-500 bg-white">
+                          No recent submitted assignments.
+                        </td>
+                      </tr>
+                    );
+                  }
+
+                  return submitted.map((s, i) => (
+                    <tr key={s.a.a_id} className={i % 2 === 1 ? "bg-gray-50" : ""}>
+                      <td className="py-2">{s.a.a_name ?? s.a.a_id}</td>
+                      <td>{s.course ? s.course.c_id : "-"}</td>
+                      <td>{s.due ? s.due.toLocaleDateString() : "-"}</td>
+                      <td>{s.g?.score ?? (s.g?.status ?? "-")}</td>
                     </tr>
-                  );
-                })}
+                  ));
+                })()}
               </tbody>
             </table>
           </div>
@@ -315,18 +344,22 @@ export default function Dashboard() {
             <h3 className="font-semibold text-[var(--color-primary)] mb-3">
               Upcoming Deadlines
             </h3>
-            <ul className="text-sm space-y-2">
-              {data.deadlines.map((d, i) => (
-                <li key={i}>
-                  <p className="font-medium">
-                    {d.course_code} - {d.label}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(d.due_date).toLocaleDateString()}
-                  </p>
-                </li>
-              ))}
-            </ul>
+            {upcomingDeadlines.length === 0 ? (
+              <p className="text-sm opacity-90">No upcoming deadlines</p>
+            ) : (
+              <ul className="text-sm space-y-2">
+                {upcomingDeadlines.map((d: any, i: number) => (
+                  <li key={i}>
+                    <p className="font-medium">
+                      {d.course_code} - {d.label}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {d.due ? d.due.toLocaleDateString() : "-"}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>

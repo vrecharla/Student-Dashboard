@@ -8,6 +8,7 @@ import Attendance from "./pages/Attendance";
 import Finance from "./pages/Finance";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
+import { getToken } from "./lib/auth";
 import Bottom from "./components/Bottom";
 
 function ShellLayout({ children }: { children: React.ReactNode }) {
@@ -33,6 +34,8 @@ function ShellLayout({ children }: { children: React.ReactNode }) {
 
 
 export default function App() {
+  const authed = Boolean(getToken());
+
   return (
     <BrowserRouter>
       <Routes>
@@ -40,16 +43,20 @@ export default function App() {
         <Route
           path="*"
           element={
-            <ShellLayout>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/academic" element={<Academic />} />
-                <Route path="/attendance" element={<Attendance />} />
-                <Route path="/financial" element={<Finance />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </ShellLayout>
+            authed ? (
+              <ShellLayout>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/academic" element={<Academic />} />
+                  <Route path="/attendance" element={<Attendance />} />
+                  <Route path="/financial" element={<Finance />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </ShellLayout>
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
       </Routes>

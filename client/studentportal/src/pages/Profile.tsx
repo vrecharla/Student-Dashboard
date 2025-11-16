@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import type { DashboardDTO } from "../types/dashboard";
 import { getDashboard } from "../api/client";
+import { getStudentId } from "../lib/auth";
 import PageLoader from "../components/PageLoader";
 
 export default function Profile() {
   const [data, setData] = useState<DashboardDTO | null>(null);
 
   useEffect(() => {
-    getDashboard("S001", "Spring 2024").then(setData);
+    const sId = getStudentId() || "S3001";
+    getDashboard(sId, "Spring 2024").then(setData);
   }, []);
 
   if (!data) return <PageLoader />;
@@ -60,7 +62,7 @@ export default function Profile() {
             <tr><td className="px-6 py-2">Email</td><td >{student.mail_id}</td></tr>
             <tr><td className="px-6 py-2" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Student ID</td><td style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>{student.s_id}</td></tr>
             <tr><td className="px-6 py-2">Program</td><td >{student.program}</td></tr>
-            <tr><td className="px-6 py-2" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Year</td><td style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }} >{student.year} Year</td></tr>
+            <tr><td className="px-6 py-2" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Year</td><td style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }} >{student.level ?? "—"}</td></tr>
             <tr><td className="px-6 py-2">Advisor</td><td >Dr. Sarah Bennett</td></tr>
             <tr><td className="px-6 py-2" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Enrollment Status</td><td style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }} >Active</td></tr>
           </tbody>

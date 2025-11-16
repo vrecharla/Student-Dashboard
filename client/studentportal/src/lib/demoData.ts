@@ -7,10 +7,10 @@ export const demoDashboard: DashboardDTO = {
     program: "BSc IT", age: 21, status: "Active", level: "Undergrad", admit_term: "Spring 2024"
   },
   courses: [
-    { c_id: "C001", c_title: "Introduction to IT", c_code: "IT101", credits: 3 },
-    { c_id: "C002", c_title: "Systems Analysis",   c_code: "MIS202", credits: 3 },
-    { c_id: "C003", c_title: "Data Literacy",      c_code: "STAT115", credits: 3 },
-    { c_id: "C004", c_title: "Data Literacy",      c_code: "STAT115", credits: 3 },
+  { c_id: "C001", c_title: "Introduction to IT", c_code: "IT101", credits: 3, instructor_name: "Dr. Alice Carter" },
+  { c_id: "C002", c_title: "Systems Analysis",   c_code: "MIS202", credits: 3, instructor_name: "Prof. Mark Lee" },
+  { c_id: "C003", c_title: "Data Literacy",      c_code: "STAT115", credits: 3, instructor_name: "Dr. Sandra Kim" },
+  { c_id: "C004", c_title: "Data Literacy",      c_code: "STAT115", credits: 3, instructor_name: "Dr. Sandra Kim" },
   ],
   enrollments: [
     { e_id:"E001", s_id:"S001", c_id:"C001", term:"Spring 2024", registration_status:"Registered", overall_hours:40, gpa:3.5 },

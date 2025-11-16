@@ -2,26 +2,31 @@
 import { useEffect, useState } from "react";
 import type { DashboardDTO } from "../types/dashboard";
 import { getDashboard } from "../api/client";
-import SectionPill from "../components/SectionPill";
-import Card from "../components/Card";
-import KPI from "../components/KPI";
+import { getStudentId } from "../lib/auth";
+// Uses financeSummary from the dashboard payload
 import PageLoader from "../components/PageLoader";
 
 function fmt(n: number) { return `$ ${Number(n).toLocaleString()}`; }
 
 export default function Finance() {
   const [data, setData] = useState<DashboardDTO | null>(null);
-  useEffect(() => { getDashboard("S001", "Spring 2024").then(setData); }, []);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => { const sId = getStudentId() || "S3001"; getDashboard(sId, "Spring 2024").then(setData).catch((e) => setErr(String(e))); }, []);
+  if (err) return <div className="p-6 text-red-600">Could not load Finance: {err}</div>;
   if (!data) return <PageLoader />;
 
-  // Derive "Total Fees" and "Fees Paid" to match the mock
-  const total = 10000;                      // mock figure from your design
-  const paid  = 8000;
-  const bal   = total - paid;
+  // Use financeSummary from the backend when available
+  const total = data.financeSummary?.total_amount ?? 0;
+  const bal = data.financeSummary?.balance_due ?? 0;
+  const paid = Math.max(0, total - bal);
 
   const rows = [
-    { term: "Fall 2024",    fees: total, due: "November 15th 2025", status: "Pending" },
-    { term: "Spring 2024",  fees: total, due: "March 25th 2025",    status: "Paid" },
+    {
+      term: "Current",
+      fees: total,
+      due: data.financeSummary?.next_due_date ? new Date(data.financeSummary.next_due_date).toLocaleDateString() : "—",
+      status: bal > 0 ? "Pending" : "Paid",
+    },
   ];
 
   return (

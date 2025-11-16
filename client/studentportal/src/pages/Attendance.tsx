@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 import type { DashboardDTO } from "../types/dashboard";
 import { getDashboard } from "../api/client";
+import { getStudentId } from "../lib/auth";
 import PageLoader from "../components/PageLoader";
 
 export default function Attendance() {
   const [data, setData] = useState<DashboardDTO | null>(null);
+  const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    getDashboard("S001", "Spring 2024").then(setData);
+    const sId = getStudentId() || "S3001";
+    getDashboard(sId, "Spring 2024").then(setData).catch((e) => setErr(String(e)));
   }, []);
 
+  if (err) return <div className="p-6 text-red-600">Could not load Attendance: {err}</div>;
   if (!data) return ( <PageLoader /> );
 
     // Build dynamic messages based on actual attendance
@@ -24,6 +28,18 @@ export default function Attendance() {
     if (pct < 75) return "var(--color-danger)";
     if (pct < 85) return "var(--color-warning)";
     return "var(--color-success)";
+  };
+
+  // Normalize attendance values coming from backend
+  // Some endpoints return attendance_pct as a fraction (0.0 - 1.0)
+  // while others return a percentage (0 - 100). Accept both.
+  const normalizePct = (raw?: number | null) => {
+    if (raw == null || Number.isNaN(raw)) return 0;
+    const n = Number(raw);
+    // If backend sends 0-1 fraction, scale to 0-100
+    const scaled = n <= 1 ? n * 100 : n;
+    // clamp and round to integer percentage
+    return Math.max(0, Math.min(100, Math.round(scaled)));
   };
 
 
@@ -42,9 +58,9 @@ export default function Attendance() {
 
         {/* Attendance Cards */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8 p-3">
-          {data.attendance.slice(0, 3).map((a, i) => {
+          {data.attendance.map((a) => {
             const c = data.courses.find(x => x.c_id === a.c_id);
-            const pct = Math.max(0, Math.min(100, a.attendance_pct));
+                const pct = normalizePct(a.attendance_pct);
 
             return (
               <div
@@ -52,7 +68,7 @@ export default function Attendance() {
                 className="rounded-2xl p-6 bg-white"
                 style={{ boxShadow: "var(--shadow-soft)" }}
               >
-                <p className="text-lg font-bold">{c?.c_code}</p>
+                <p className="text-lg font-bold">{c?.c_id}</p>
                 <p className="text-md text-grey-600 mb-6 border-b-4 border-[var(--color-primary)]">
                   {c?.c_title ?? "Course Name"}
                 </p>
@@ -112,9 +128,9 @@ export default function Attendance() {
 
         {/* Status Bars */}
         <div className="space-y-4">
-          {data.attendance.slice(0, 3).map((a) => {
+          {data.attendance.map((a) => {
             const c = data.courses.find(x => x.c_id === a.c_id);
-            const pct = Math.max(0, Math.min(100, a.attendance_pct));
+            const pct = normalizePct(a.attendance_pct);
 
             return (
               <div

@@ -2,6 +2,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import illustration from "../assets/illustration.png";
+import { setAuth } from "../lib/auth";
+
+const BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export default function Login() {
   const nav = useNavigate();
@@ -11,8 +14,26 @@ export default function Login() {
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (id === "S001" && pwd === "hsu") nav("/");
-    else setErr("Incorrect credentials");
+    setErr("");
+    // send OAuth2 form-encoded POST to /auth/login
+    fetch(`${BASE}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ username: id, password: pwd }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const t = await res.text();
+          throw new Error(t || `status ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((body) => {
+        // { access_token, token_type, student }
+        setAuth(body.access_token, body.student);
+        nav("/");
+      })
+      .catch((err) => setErr(String(err)));
   }
 
   return (

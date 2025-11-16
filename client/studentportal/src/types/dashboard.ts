@@ -4,7 +4,7 @@ export type Student = {
   program: string; age: number; status: string; level: string; admit_term: string;
 };
 
-export type Course = { c_id: string; c_title: string; c_code: string; credits: number; };
+export type Course = { c_id: string; c_title: string; c_code: string; credits: number; instructor_name?: string };
 
 export type Enrollment = {
   e_id: string; s_id: string; c_id: string; term: string;
@@ -30,6 +30,5 @@ export type DashboardDTO = {
   metrics: {
     overall_progress_pct: number; gpa: number; attendance_pct: number; alerts_unread: number;
   };
-  deadlines: { course_code: string; label: string; due_date: string; status: "ok"|"due_soon"|"overdue"; }[];
   recommendations: string[];
 };
