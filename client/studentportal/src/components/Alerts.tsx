@@ -99,7 +99,7 @@ export default function Alerts() {
       {/* Button */}
       <button
         onClick={() => setOpen((p) => !p)}
-        className="relative p-2 rounded-xl hover:bg-black/10 transition"
+        className="relative p-2 rounded-xl hover:bg-black/10 transition cursor-pointer"
       >
         <Bell className="w-6 h-6 text-[var(--color-primary)]" />
         {alerts.length > 0 && <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>}
