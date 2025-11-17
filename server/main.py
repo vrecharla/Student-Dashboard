@@ -42,6 +42,10 @@ async def shutdown():
 def health():
     return {"ok": True}
 
+@app.get("/")
+def root():
+    return {"message": "API is live!"}
+
 
 @app.post("/auth/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
