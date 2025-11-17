@@ -72,7 +72,7 @@ export default function Alerts() {
     }
 
     // 4. Low GPA alert
-    if (dashboard.metrics?.gpa < 2.0) {
+    if (dashboard.metrics?.gpa < 2.5) {
       result.push({
         id: "low-gpa",
         text: `Your GPA is low (${dashboard.metrics.gpa.toFixed(2)})`,
