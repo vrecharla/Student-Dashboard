@@ -106,7 +106,7 @@ export default function Profile() {
           </thead>
 
           <tbody>
-            <tr><td className="px-6 py-2 whitespace-nowrap" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Address</td><td className="px-6 py-2 whitespace-nowrap" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }} >{student.address ?? "—"}</td></tr>
+            <tr><td className="px-6 py-2 whitespace-nowrap" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Address</td><td className="px-6 py-2 whitespace-nowrap" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }} >{"—"}</td></tr>
             <tr><td className="px-6 py-2 whitespace-nowrap">Emergency Contact</td><td  className="px-6 py-2 whitespace-nowrap">{emergency}</td></tr>
             <tr><td className="px-6 py-2 whitespace-nowrap" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }}>Emergency Phone Number</td><td className="px-6 py-2 whitespace-nowrap" style={{ backgroundColor: "rgba(var(--color-primary-rgb), 0.08)" }} >{student.emergency_contact ?? "—"}</td></tr>
           </tbody>

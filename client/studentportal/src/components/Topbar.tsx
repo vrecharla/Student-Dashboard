@@ -4,8 +4,7 @@ import { getStudent } from "../lib/auth";
 import { Menu } from "lucide-react";
 
 export default function Topbar({
-  onMenuClick,
-  alerts = [],
+  onMenuClick
 }: {
   onMenuClick?: () => void;
   alerts?: any[];

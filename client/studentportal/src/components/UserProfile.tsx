@@ -14,7 +14,6 @@ export type UserProfileProps = {
 export default function UserProfile({
   name = "John Doe",
   term,
-  role = undefined,
   avatar = "/assets/avatar.png",
   sizeClass = "w-10 h-10",
   className = "",
