@@ -1,8 +1,15 @@
 import UserProfile from "./UserProfile";
+import Alerts from "./Alerts";
 import { getStudent } from "../lib/auth";
 import { Menu } from "lucide-react";
 
-export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
+export default function Topbar({
+  onMenuClick,
+  alerts = [],
+}: {
+  onMenuClick?: () => void;
+  alerts?: any[];
+}) {
   return (
     <header
       className="
@@ -13,7 +20,6 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
     >
       {/* LEFT SECTION */}
       <div className="flex items-center gap-3 min-w-0">
-        
         {/* Mobile Menu Button */}
         <button
           className="md:hidden p-2 rounded hover:bg-black/10 shrink-0"
@@ -26,7 +32,7 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
         <h1
           className="
             hidden md:block
-            text-lg sm:text-xl md:text-2xl font-extrabold 
+            text-lg sm:text-lg md:text-xl font-extrabold 
             tracking-wide px-4 md:px-6 py-2 rounded-full shadow-lg 
             truncate
           "
@@ -41,12 +47,15 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
       </div>
 
       {/* RIGHT SECTION */}
-      <div className="shrink-0">
+      <div className="flex items-center gap-4 shrink-0">
         <UserProfile
           name={getStudent()?.name}
           term={getStudent()?.admit_term ?? getStudent()?.term}
           avatar={getStudent()?.avatar}
         />
+
+        <Alerts />
+
       </div>
     </header>
   );

@@ -19,14 +19,14 @@ export default function Attendance() {
     // Build dynamic messages based on actual attendance
   const getStatusMessage = (courseTitle: string, pct: number) => {
     if (pct < 75) return `${courseTitle} - Below required attendance (${pct}%).`;
-    if (pct < 85) return `${courseTitle} - Approaching risk threshold (${pct}%).`;
+    if (pct < 80) return `${courseTitle} - Approaching risk threshold (${pct}%).`;
     return `${courseTitle} - Current attendance is good (${pct}%).`;
   };
 
   // Color selection based on attendance
   const getStatusColor = (pct: number) => {
     if (pct < 75) return "var(--color-danger)";
-    if (pct < 85) return "var(--color-warning)";
+    if (pct < 80) return "var(--color-warning)";
     return "var(--color-success)";
   };
 
