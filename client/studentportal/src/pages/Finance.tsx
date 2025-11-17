@@ -82,40 +82,47 @@ export default function Finance() {
         Payment details
       </div>
 
-      <div className="mt-2 rounded-xl overflow-hidden"
-        style={{
-          boxShadow: "var(--shadow-soft)",
-        }}>
-        <table className="px-2 w-full">
-          <thead>
-            <tr className="text-left font-semibold text-l underline underline-offset-4"
-            style={{
-              backgroundColor: "var(--color-background)",
-              color: "var(--color-primary)",
-            }}
-            >
-              <th className="px-6 py-2">Term</th>
-              <th>Fees</th> 
-              <th>Due Date</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r, i) => (
+      <div
+        className="mt-2 rounded-xl w-full overflow-hidden"
+        style={{ boxShadow: "var(--shadow-soft)" }}
+      >
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left">
+            <thead>
               <tr
-                key={i}
+                className="font-semibold text-l underline underline-offset-4"
                 style={{
-                    backgroundColor: i % 2 ? "var(--color-background)" : "rgba(var(--color-primary-rgb), 0.08)"
-                  }}
+                  backgroundColor: "var(--color-background)",
+                  color: "var(--color-primary)",
+                }}
               >
-                <td className="px-6 py-2">{r.term}</td>
-                <td>{fmt(r.fees)}</td>
-                <td>{r.due}</td>
-                <td>{r.status}</td>
+                <th className="px-6 py-2 whitespace-nowrap">Term</th>
+                <th className="px-4 py-2 whitespace-nowrap">Fees</th>
+                <th className="px-4 py-2 whitespace-nowrap">Due Date</th>
+                <th className="px-4 py-2 whitespace-nowrap">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {rows.map((r, i) => (
+                <tr
+                  key={i}
+                  style={{
+                    backgroundColor:
+                      i % 2
+                        ? "var(--color-background)"
+                        : "rgba(var(--color-primary-rgb), 0.08)",
+                  }}
+                >
+                  <td className="px-6 py-2 whitespace-nowrap">{r.term}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{fmt(r.fees)}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{r.due}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{r.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

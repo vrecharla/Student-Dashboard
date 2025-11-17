@@ -57,7 +57,8 @@ export default function Attendance() {
         </div>
 
         {/* Attendance Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 p-3">
+        {/* Attendance Cards */}
+        <div className="grid gap-8 p-3 grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
           {data.attendance.map((a) => {
             const c = data.courses.find(x => x.c_id === a.c_id);
                 const pct = normalizePct(a.attendance_pct);

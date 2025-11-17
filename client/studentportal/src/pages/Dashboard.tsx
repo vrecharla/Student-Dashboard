@@ -206,24 +206,27 @@ export default function Dashboard() {
                   boxShadow: "var(--shadow-soft)",
                 }}>
               <h3 className="font-semibold text-[var(--color-primary)] mb-3">Enrolled Courses</h3>
-              <table className="w-full text-sm">
+
+              <div className="overflow-x-auto">
+              <table className="min-w-full text-left text-sm">
                 <thead>
                   <tr className="text-left text-gray-500">
-                    <th className="py-2">Course Name</th>
-                    <th>Code</th>
-                    <th>Credits</th>
+                    <th className="px-2 py-2 whitespace-nowrap">Course Name</th>
+                    <th className="px-2 py-2 whitespace-nowrap">Code</th>
+                    <th className="px-2 py-2 whitespace-nowrap">Credits</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.courses.map((c, i) => (
                     <tr key={c.c_id} className={i % 2 === 1 ? "bg-gray-50" : ""}>
-                      <td className="py-2">{c.c_title}</td>
-                      <td>{c.c_id}</td>
-                      <td>{c.credits}</td>
+                      <td className="px-2 py-2 whitespace-nowrap">{c.c_title}</td>
+                      <td className="px-2 py-2 whitespace-nowrap">{c.c_id}</td>
+                      <td className="px-2 py-2 whitespace-nowrap">{c.credits}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
 
             {/* Attendance */}
@@ -255,13 +258,14 @@ export default function Dashboard() {
                   boxShadow: "var(--shadow-soft)",
                 }}>
             <h3 className="font-semibold text-[var(--color-primary)] mb-3">Recent Assignments</h3>
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="text-left text-grey-500">
-                  <th className="py-2">Assignment</th>
-                  <th>Course</th>
-                  <th>Due</th>
-                  <th>Grade</th>
+                  <th className="px-2 py-2 whitespace-nowrap">Assignment</th>
+                  <th className="px-2 py-2 whitespace-nowrap">Course</th>
+                  <th className="px-2 py-2 whitespace-nowrap">Due</th>
+                  <th className="px-2 py-2 whitespace-nowrap">Grade</th>
                 </tr>
               </thead>
               <tbody>
@@ -297,15 +301,16 @@ export default function Dashboard() {
 
                   return submitted.map((s, i) => (
                     <tr key={s.a.a_id} className={i % 2 === 1 ? "bg-gray-50" : ""}>
-                      <td className="py-2">{s.a.a_name ?? s.a.a_id}</td>
-                      <td>{s.course ? s.course.c_id : "-"}</td>
-                      <td>{s.due ? s.due.toLocaleDateString() : "-"}</td>
-                      <td>{s.g?.score ?? (s.g?.status ?? "-")}</td>
+                      <td className="px-2 py-2 whitespace-nowrap">{s.a.a_name ?? s.a.a_id}</td>
+                      <td className="px-2 py-2 whitespace-nowrap">{s.course ? s.course.c_id : "-"}</td>
+                      <td className="px-2 py-2 whitespace-nowrap">{s.due ? s.due.toLocaleDateString() : "-"}</td>
+                      <td className="px-2 py-2 whitespace-nowrap">{s.g?.score ?? (s.g?.status ?? "-")}</td>
                     </tr>
                   ));
                 })()}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
 

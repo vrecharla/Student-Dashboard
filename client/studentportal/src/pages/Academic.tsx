@@ -71,7 +71,7 @@ export default function Academic() {
       </div>
 
       {/* Course Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div className="grid gap-10 grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">
         {courses.map((c, index) => {
           const enr = enrollments.find((e) => e.c_id === c.c_id);
           const hours = enr?.overall_hours ?? 40;
@@ -128,11 +128,12 @@ export default function Academic() {
       </div>
 
       {/* Assignment List */}
-      <div className="mt-2 rounded-xl overflow-hidden"
+      <div className="mt-2 rounded-xl overflow-hidden w-full"
         style={{
           boxShadow: "var(--shadow-soft)",
         }}>
-        <table className="px-2 w-full">
+        <div className="overflow-x-auto">
+        <table className="min-w-full text-left">
           <thead>
             <tr className="text-left font-semibold text-l underline underline-offset-4"
             style={{
@@ -140,11 +141,11 @@ export default function Academic() {
               color: "var(--color-primary)",
             }}
             >
-              <th className="px-6 py-2">Assignment Name</th>
-              <th>Status</th> 
-              <th>Due Date</th>
-              <th>Grade</th>
-              <th>Max Grade</th>
+              <th className="px-6 py-2 whitespace-nowrap">Assignment Name</th>
+              <th className="px-4 py-2 whitespace-nowrap">Status</th> 
+              <th className="px-4 py-2 whitespace-nowrap">Due Date</th>
+              <th className="px-4 py-2 whitespace-nowrap">Grade</th>
+              <th className="px-4 py-2 whitespace-nowrap">Max Grade</th>
             </tr>
           </thead>
 
@@ -156,11 +157,11 @@ export default function Academic() {
                     backgroundColor: i % 2 ? "var(--color-background)" : "rgba(var(--color-primary-rgb), 0.08)"
                   }}
               >
-                <td className="px-6 py-2">{r.name}</td>
-                <td>{r.status}</td>
-                <td>{r.due}</td>
-                <td>{r.grade}</td>
-                <td>{r.max}</td>
+                <td className="px-6 py-2 whitespace-nowrap">{r.name}</td>
+                <td className="px-4 py-2 whitespace-nowrap">{r.status}</td>
+                <td className="px-4 py-2 whitespace-nowrap">{r.due}</td>
+                <td className="px-4 py-2 whitespace-nowrap">{r.grade}</td>
+                <td className="px-4 py-2 whitespace-nowrap">{r.max}</td>
               </tr>
             ))}
 
@@ -176,6 +177,7 @@ export default function Academic() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
