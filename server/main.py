@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Dict
 from auth import verify_password, create_access_token
@@ -46,6 +46,9 @@ def health():
 def root():
     return {"message": "API is live!"}
 
+@app.head("/")
+def root_head():
+    return Response(status_code=200)
 
 @app.post("/auth/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
