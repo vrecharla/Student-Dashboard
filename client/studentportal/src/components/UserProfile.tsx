@@ -1,23 +1,16 @@
 import { useState } from "react";
 import { User } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export type UserProfileProps = {
   name?: string;
-  // term replaces the previous 'role' prop — keep 'role' as optional alias for
-  // backwards compatibility with existing usages.
   term?: string;
   role?: string;
   avatar?: string;
-  /** Tailwind size classes for the avatar (e.g. "w-10 h-10") */
   sizeClass?: string;
-  /** Additional classes for the root container */
   className?: string;
 };
 
-/**
- * UserProfile component — configurable via props with sensible defaults so
- * existing usages don't need to change.
- */
 export default function UserProfile({
   name = "John Doe",
   term,
@@ -30,7 +23,10 @@ export default function UserProfile({
   const displayTerm = term ?? "Spring 2024";
 
   return (
-    <div className={`flex items-center gap-3 ${className}`.trim()}>
+    <Link
+      to="/profile"
+      className={`flex items-center gap-3 cursor-pointer ${className}`.trim()}
+    >
       {!imgError ? (
         <img
           src={avatar}
@@ -39,15 +35,17 @@ export default function UserProfile({
           onError={() => setImgError(true)}
         />
       ) : (
-        <div className={`${sizeClass} rounded-full bg-gray-300 flex items-center justify-center shadow-md`}>
+        <div
+          className={`${sizeClass} rounded-full bg-gray-300 flex items-center justify-center shadow-md`}
+        >
           <User className="text-gray-600 w-5 h-5" />
         </div>
       )}
 
-      <div className="text-left">
+      <div className="text-left hidden md:block">
         <p className="text-sm font-semibold text-black">{name}</p>
         <p className="text-xs text-black/80">{displayTerm}</p>
       </div>
-    </div>
+    </Link>
   );
 }

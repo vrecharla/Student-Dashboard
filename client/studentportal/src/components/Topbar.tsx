@@ -1,30 +1,53 @@
-// src/components/Topbar.tsx
 import UserProfile from "./UserProfile";
 import { getStudent } from "../lib/auth";
+import { Menu } from "lucide-react";
 
-export default function Topbar() {
+export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   return (
     <header
-      className="flex items-center justify-between px-10 py-4 pr-15"
+      className="
+        flex items-center justify-between 
+        px-4 md:px-10 py-4
+        gap-4
+      "
     >
-      {/* Left: Title */}
-      <h1
-        className="text-2xl font-extrabold tracking-wide px-30 py-2 rounded-full shadow-lg"
-        style={{
-          backgroundColor: "var(--color-primary)",
-          color: "#fff",
-          boxShadow: "var(--shadow-soft)",
-        }}
-      >
-        STUDENT DASHBOARD PORTAL
-      </h1>
+      {/* LEFT SECTION */}
+      <div className="flex items-center gap-3 min-w-0">
+        
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden p-2 rounded hover:bg-black/10 shrink-0"
+          onClick={onMenuClick}
+        >
+          <Menu className="w-6 h-6" />
+        </button>
 
-      {/* Right: Profile */}
-      <UserProfile
-        name={getStudent()?.name}
-        term={getStudent()?.admit_term ?? getStudent()?.term}
-        avatar={getStudent()?.avatar}
-      />
+        {/* Responsive Title — hidden on mobile */}
+        <h1
+          className="
+            hidden md:block
+            text-lg sm:text-xl md:text-2xl font-extrabold 
+            tracking-wide px-4 md:px-6 py-2 rounded-full shadow-lg 
+            truncate
+          "
+          style={{
+            backgroundColor: "var(--color-primary)",
+            color: "#fff",
+            boxShadow: "var(--shadow-soft)",
+          }}
+        >
+          STUDENT DASHBOARD PORTAL
+        </h1>
+      </div>
+
+      {/* RIGHT SECTION */}
+      <div className="shrink-0">
+        <UserProfile
+          name={getStudent()?.name}
+          term={getStudent()?.admit_term ?? getStudent()?.term}
+          avatar={getStudent()?.avatar}
+        />
+      </div>
     </header>
   );
 }

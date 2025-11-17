@@ -1,4 +1,3 @@
-// src/components/Sidebar.tsx
 import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -7,56 +6,101 @@ import {
   Wallet,
   User,
   LogOut,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 const linkBase =
   "flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors duration-200";
-const active = "bg-white text-[var(--primary)] font-semibold";
-const idle = "text-white/90 hover:bg-[var(--border)]";
 
-const Item = ({
-  to,
-  icon: Icon,
-  label,
+const active =
+  "text-[var(--primary)] font-semibold bg-white/15";   // <-- fixed highlight
+
+const idle =
+  "text-white/90 hover:bg-[var(--border)]";
+
+export default function Sidebar({
+  collapsed,
+  onToggle,
+  onItemSelect,
 }: {
-  to: string;
-  icon: React.ElementType;
-  label: string;
-}) => (
-  <NavLink
-    to={to}
-    end
-    className={({ isActive }) => `${linkBase} ${isActive ? active : idle}`}
-  >
-    <Icon className="w-5 h-5" />
-    <span>{label}</span>
-  </NavLink>
-);
+  collapsed: boolean;
+  onToggle: (next: boolean) => void;
+  onItemSelect: () => void;
+}) {
+  const Item = ({
+    to,
+    icon: Icon,
+    label,
+  }: {
+    to: string;
+    icon: React.ElementType;
+    label: string;
+  }) => (
+    <NavLink
+      to={to}
+      end
+      onClick={onItemSelect}
+      className={({ isActive }) =>
+        `${linkBase} ${isActive ? active : idle}`
+      }
+      title={collapsed ? label : undefined}
+    >
+      <Icon
+        className={`w-5 h-5 ${
+          // icon also must turn primary when active
+          window.location.pathname === to ? "text-[var(--primary)]" : ""
+        }`}
+      />
+      {!collapsed && <span>{label}</span>}
+    </NavLink>
+  );
 
-export default function Sidebar() {
   return (
     <aside
-      className="w-64 shrink-0 h-screen flex flex-col text-white rounded-r-2xl shadow-lg"
+      className={`h-full flex flex-col rounded-r-xl text-white transition-all duration-300 ${
+        collapsed ? "w-20" : "w-64"
+      }`}
       style={{
         backgroundColor: "var(--color-primary)",
-        boxShadow:  "var(--shadow-soft)",
-        ["--primary" as any]: "var(--color-primary)",
-        ["--border" as any]: "var(--color-border)",
+        boxShadow: "var(--shadow-soft)",
       }}
     >
-      <div className="pt-10 p-4 flex items-center gap-3">
-        <div
-          className="w-10 h-10 rounded-xl grid place-items-center font-bold text-white"
-          style={{ backgroundColor: "var(--color-success)" }}
+      <div
+        className={`pt-4 p-2 flex items-center gap-3 ${
+          collapsed ? "justify-center" : ""
+        }`}
+      >
+        {!collapsed && (
+          <div
+            className="w-10 h-10 rounded-xl grid place-items-center font-bold text-white"
+            style={{ backgroundColor: "var(--color-success)" }}
+          >
+            HSU
+          </div>
+        )}
+
+        {!collapsed && (
+          <p className="text-sm font-semibold">
+            Horizon State University
+          </p>
+        )}
+
+        <button
+          onClick={() => onToggle(!collapsed)}
+          className={`p-2 rounded-md text-white hover:bg-white/10 ${
+            collapsed ? "mx-auto" : "ml-auto"
+          }`}
         >
-          HSU
-        </div>
-        <div>
-          <p className="text-sm font-semibold">Horizon State University</p>
-        </div>
+          {collapsed ? (
+            <ChevronRight className="w-5 h-5" />
+          ) : (
+            <ChevronLeft className="w-4 h-4" />
+          )}
+        </button>
       </div>
 
-      <nav className="px-3 py-10 space-y-4 flex-1">
+      <nav className="px-2 py-6 space-y-4 flex-1">
         <Item to="/" icon={LayoutDashboard} label="Dashboard" />
         <Item to="/academic" icon={BookOpen} label="Academic" />
         <Item to="/attendance" icon={CalendarDays} label="Attendance" />
@@ -64,7 +108,7 @@ export default function Sidebar() {
         <Item to="/profile" icon={User} label="Profile" />
       </nav>
 
-      <div className="p-3 mt-auto border-t border-white/10">
+      <div className="p-2 mt-auto border-t border-white/10">
         <Item to="/login" icon={LogOut} label="Logout" />
       </div>
     </aside>
