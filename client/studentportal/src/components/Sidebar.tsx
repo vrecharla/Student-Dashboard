@@ -8,6 +8,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  BarChart4,
 } from "lucide-react";
 import { clearAuth } from "../lib/auth";
 
@@ -110,6 +111,7 @@ export default function Sidebar({
         <Item to="/attendance" icon={CalendarDays} label="Attendance" />
         <Item to="/financial" icon={Wallet} label="Financial" />
         <Item to="/profile" icon={User} label="Profile" />
+        <Item to="/analysis" icon={BarChart4} label="Analysis" />
       </nav>
 
       {/* Logout button at the bottom */}

@@ -10,6 +10,8 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import { getToken } from "./lib/auth";
 import Bottom from "./components/Bottom";
+import Analysis from "./pages/Analysis";
+
 
 function ShellLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -99,6 +101,7 @@ export default function App() {
                   <Route path="/financial" element={<Finance />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
+                  <Route path="/analysis" element={<Analysis />} />
                 </Routes>
               </ShellLayout>
             ) : (
