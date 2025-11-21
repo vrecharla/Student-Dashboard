@@ -1,5 +1,5 @@
 // src/pages/Analysis.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { DashboardDTO } from "../types/dashboard";
 import { getDashboard } from "../api/client";
 import { getStudentId } from "../lib/auth";
